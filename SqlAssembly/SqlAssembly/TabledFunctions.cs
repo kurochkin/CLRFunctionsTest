@@ -23,9 +23,9 @@ namespace SqlAssembly
 
         public static void FillRow(Object obj, out SqlInt32 id, out SqlString name)
         {
-            Item eventLogEntry = (Item)obj;
-            id = new SqlInt32(eventLogEntry.Id);
-            name = new SqlString(eventLogEntry.Name);
+            var item = (Item)obj;
+            id = new SqlInt32(item.Id);
+            name = new SqlString(item.Name);
         }
     }
 
