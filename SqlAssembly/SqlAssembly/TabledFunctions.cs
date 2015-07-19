@@ -1,24 +1,27 @@
 ﻿using System;
 using System.Collections;
+using System.Data;
 using System.Data.SqlTypes;
-using System.Diagnostics;
+using System.Linq;
+using Microsoft.SqlServer.Server;
 
 namespace SqlAssembly
 {
     public class TabledFunctions
     {
-        //[Microsoft.SqlServer.Server.SqlFunction]
-        //public static SqlString SqlFunction1()
-        //{
-        //    // Put your code here
-        //    return new SqlString("My fucking foo 2");
-        //}
+        [SqlFunction]
+        public static SqlString SqlFunction1()
+        {
+            // Put your code here
+            return new SqlString("My fucking foo 2");
+        }
 
-        [Microsoft.SqlServer.Server.SqlFunction(FillRowMethodName = "FillRow")]
+        [SqlFunction(FillRowMethodName = "FillRow")]
         public static IEnumerable SqlFunction2()
         {
             // Put your code here
-            return new [] {new Item {Id = 1, Name = "adsfasdf"}, new Item {Id = 2, Name = "adsfasdddddf"}};
+            var rv = Enumerable.Range(1, 10000).Select(x => new Item {Id = x, Name = "Item #" + x}).ToArray();
+            return rv;
         }
 
         public static void FillRow(Object obj, out SqlInt32 id, out SqlString name)
@@ -26,6 +29,24 @@ namespace SqlAssembly
             var item = (Item)obj;
             id = new SqlInt32(item.Id);
             name = new SqlString(item.Name);
+        }
+
+        [SqlProcedure]
+        public static void TestStoredProcedureCode()
+        {
+            var dt = new DataTable();
+            dt.Columns.Add("Id", typeof (int));
+            dt.Columns.Add("Name", typeof (string));
+
+            for (int i = 0; i < 1000; i++)
+            {
+                var row = dt.NewRow();
+                row["Id"] = i;
+                row["Name"] = "Name: " + i;
+                dt.Rows.Add(row);
+            }
+
+            DataSetUtilities.SendDataTable(dt);
         }
     }
 
